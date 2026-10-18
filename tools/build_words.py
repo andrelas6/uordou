@@ -28,6 +28,15 @@ for w in valid:
 if out:
     random.seed(20261018)
     random.shuffle(answers)
+    # Palavras que só diferem no acento ("forca"/"força") são o mesmo jogo, porque o
+    # jogador digita sem acento: fica só a grafia mais comum, na posição da primeira.
+    # O corte é feito depois do embaralhamento para não mudar os dias já jogados.
+    common = {}
+    for w in answers:
+        n = norm(w)
+        if n not in common or icf.get(w,99) < icf.get(common[n],99): common[n] = w
+    seen = set()
+    answers = [common[norm(w)] for w in answers if not (norm(w) in seen or seen.add(norm(w)))]
     with open(out,'w',encoding='utf-8') as f:
         f.write('// Gerado a partir de fserb/pt-br (MIT). Não editar à mão.\n')
         f.write('export const ANSWERS: readonly string[] = ' + json.dumps(answers, ensure_ascii=False) + ';\n')

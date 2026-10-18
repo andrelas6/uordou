@@ -50,7 +50,8 @@ test('listas de palavras', () => {
     assert.equal([...w].length, 5, w);
     assert.ok(valid.has(normalize(w)), w);
   }
-  assert.equal(new Set(ANSWERS).size, ANSWERS.length);
+  // Sem repetição nem por acento: "forca" e "força" seriam o mesmo jogo.
+  assert.equal(new Set(ANSWERS.map(normalize)).size, ANSWERS.length);
 });
 
 test('letras acentuadas contam como a mesma letra (c = ç, a = ã, e = é...)', () => {
