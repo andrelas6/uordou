@@ -49,10 +49,17 @@ Gerada a partir do [fserb/pt-br](https://github.com/fserb/pt-br) (licença MIT):
 - **Tentativas aceitas** (~9.400): todas as palavras de 5 letras do léxico, das conjugações verbais e as formas frequentes do corpus (plurais etc.).
 - **Respostas** (~1.100, cerca de 3 anos): palavras do léxico comuns no uso (filtradas pela frequência), sem estrangeirismos, nomes próprios e palavrões (`tools/blocklist.txt`).
 
+A ordem das respostas fica salva em `tools/answers.txt` (linha N = dia N) e não muda ao regenerar:
+
+- o dia de hoje e os anteriores ficam sempre iguais;
+- palavras removidas (por exemplo, adicionadas à `tools/blocklist.txt`) saem só dos dias futuros;
+- palavras novas entram no fim da lista.
+
+Os testes conferem que `src/words.ts` segue `tools/answers.txt` e, nos pull requests, que nenhum dia já jogado mudou em relação à `main`.
+
 Para regenerar (depois de baixar os arquivos `lexico`, `icf` e `conjugações` — este último salvo como `conjugacoes` — numa pasta):
 
 ```sh
-python3 tools/build_words.py <pasta> src/words.ts 12.9 tools/blocklist.txt
+python3 tools/build_words.py <pasta>                    # usa a data de hoje (Brasília)
+python3 tools/build_words.py <pasta> --threshold 13.5   # mais respostas, mais difíceis
 ```
-
-O último argumento numérico é o limite de raridade das respostas (maior = mais palavras, mais difíceis).
