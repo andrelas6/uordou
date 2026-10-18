@@ -13,6 +13,10 @@ jobs:
           node-version: 22
           cache: npm
       - run: npm ci
+      # Para o teste que garante que os dias já jogados não mudaram em relação à base.
+      - run: git fetch --depth=1 origin ${{ github.base_ref }}
       - run: npm run typecheck
       - run: npm test
+        env:
+          BASE_REF: origin/${{ github.base_ref }}
       - run: npm run build
