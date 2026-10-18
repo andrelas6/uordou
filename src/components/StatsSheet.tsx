@@ -1,10 +1,11 @@
 import { useEffect, useState } from 'react';
-import Sheet from './Sheet.jsx';
-import { dayNumber, msUntilNextDay } from '../game.js';
+import Sheet from './Sheet.tsx';
+import { dayNumber, msUntilNextDay } from '../game.ts';
+import type { Stats } from '../game.ts';
 
-function formatCountdown(ms) {
+function formatCountdown(ms: number): string {
   const s = Math.max(0, Math.floor(ms / 1000));
-  const pad = (n) => String(n).padStart(2, '0');
+  const pad = (n: number) => String(n).padStart(2, '0');
   return `${pad(Math.floor(s / 3600))}:${pad(Math.floor(s / 60) % 60)}:${pad(s % 60)}`;
 }
 
@@ -22,7 +23,21 @@ function Countdown() {
   return <b>{formatCountdown(ms)}</b>;
 }
 
-export default function StatsSheet({ open, onClose, stats, streak, todayAttempts, finished, shareText, onShare }) {
+interface StatsSheetProps {
+  open: boolean;
+  onClose: () => void;
+  stats: Stats;
+  streak: number;
+  /** Tentativas da vitória de hoje (0 se não venceu), para destacar a barra. */
+  todayAttempts: number;
+  finished: boolean;
+  shareText: string;
+  onShare: () => void;
+}
+
+export default function StatsSheet({
+  open, onClose, stats, streak, todayAttempts, finished, shareText, onShare,
+}: StatsSheetProps) {
   const pct = stats.played ? Math.round((stats.wins / stats.played) * 100) : 0;
   const max = Math.max(1, ...stats.dist);
 

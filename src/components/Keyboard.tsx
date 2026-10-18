@@ -1,6 +1,13 @@
+import type { LetterState } from '../game.ts';
+
 const LAYOUT = ['qwertyuiop', 'asdfghjkl', ['enter', ...'zxcvbnm', 'back']];
 
-export default function Keyboard({ onKey, keyStates }) {
+interface KeyboardProps {
+  onKey: (key: string) => void;
+  keyStates: Partial<Record<string, LetterState>>;
+}
+
+export default function Keyboard({ onKey, keyStates }: KeyboardProps) {
   return (
     <div className="keyboard" aria-label="Teclado">
       {LAYOUT.map((line, r) => (

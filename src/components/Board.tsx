@@ -1,6 +1,17 @@
-import { WORD_LENGTH, MAX_GUESSES, evaluate } from '../game.js';
+import type { CSSProperties } from 'react';
+import { WORD_LENGTH, MAX_GUESSES, evaluate } from '../game.ts';
+import type { LetterState } from '../game.ts';
 
-function Row({ letters = '', result, current, flip, shake, win }) {
+interface RowProps {
+  letters?: string;
+  result?: LetterState[];
+  current?: boolean;
+  flip?: boolean;
+  shake?: boolean;
+  win?: boolean;
+}
+
+function Row({ letters = '', result, current, flip, shake, win }: RowProps) {
   const chars = [...letters];
   const classes = ['row', shake && 'shake', win && 'win'].filter(Boolean).join(' ');
   return (
@@ -16,7 +27,7 @@ function Row({ letters = '', result, current, flip, shake, win }) {
           tile.push('active');
         }
         return (
-          <div key={i} className={tile.join(' ')} style={{ '--i': i }} role="gridcell">
+          <div key={i} className={tile.join(' ')} style={{ '--i': i } as CSSProperties} role="gridcell">
             {chars[i] ?? ''}
           </div>
         );
@@ -29,7 +40,18 @@ function Row({ letters = '', result, current, flip, shake, win }) {
  * guesses: tentativas normalizadas; display(guess) devolve a forma acentuada.
  * flipFrom: índice a partir do qual as linhas reveladas animam (as carregadas não).
  */
-export default function Board({ guesses, current, answerKey, display, playing, flipFrom, shake, winRow }) {
+interface BoardProps {
+  guesses: string[];
+  current: string;
+  answerKey: string;
+  display: (guess: string) => string;
+  playing: boolean;
+  flipFrom: number;
+  shake: { n: number; row: number };
+  winRow: number;
+}
+
+export default function Board({ guesses, current, answerKey, display, playing, flipFrom, shake, winRow }: BoardProps) {
   return (
     <div className="board" role="grid" aria-label="Tabuleiro">
       {Array.from({ length: MAX_GUESSES }, (_, r) => {

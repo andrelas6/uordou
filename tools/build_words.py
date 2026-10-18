@@ -30,7 +30,7 @@ if out:
     random.shuffle(answers)
     with open(out,'w',encoding='utf-8') as f:
         f.write('// Gerado a partir de fserb/pt-br (MIT). Não editar à mão.\n')
-        f.write('export const ANSWERS = ' + json.dumps(answers, ensure_ascii=False) + ';\n')
-        f.write('export const VALID = ' + json.dumps(sorted(best.values()), ensure_ascii=False) + ';\n')
+        f.write('export const ANSWERS: readonly string[] = ' + json.dumps(answers, ensure_ascii=False) + ';\n')
+        f.write('export const VALID: readonly string[] = ' + json.dumps(sorted(best.values()), ensure_ascii=False) + ';\n')
 else:
     print(' '.join(answers))

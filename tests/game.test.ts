@@ -2,8 +2,8 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import {
   normalize, evaluate, dayNumber, msUntilNextDay, shareText, emptyStats, recordResult, currentStreak,
-} from '../src/game.js';
-import { ANSWERS, VALID } from '../src/words.js';
+} from '../src/game.ts';
+import { ANSWERS, VALID } from '../src/words.ts';
 
 test('normalize remove acentos e cedilha', () => {
   assert.equal(normalize('ação'), 'acao');
@@ -38,7 +38,7 @@ test('estatísticas e sequência', () => {
   assert.equal(s.streak, 2);
   assert.equal(currentStreak(s, 3), 2);
   assert.equal(currentStreak(s, 4), 0);
-  s = recordResult(s, { day: 3, won: false });
+  s = recordResult(s, { day: 3, won: false, attempts: 6 });
   assert.deepEqual([s.played, s.wins, s.streak, s.maxStreak], [3, 2, 0, 2]);
   assert.deepEqual(s.dist, [0, 0, 1, 1, 0, 0]);
 });
@@ -51,4 +51,13 @@ test('listas de palavras', () => {
     assert.ok(valid.has(normalize(w)), w);
   }
   assert.equal(new Set(ANSWERS).size, ANSWERS.length);
+});
+
+test('letras acentuadas contam como a mesma letra (c = ç, a = ã, e = é...)', () => {
+  const valid = new Set(VALID.map(normalize));
+  assert.ok(valid.has('cacar'), 'digitar "cacar" aceita "caçar"');
+  assert.deepEqual(evaluate(normalize('cacar'), normalize('caçar')), Array(5).fill('correct'));
+  // "c" sem cedilha acha o "ç" da resposta, mesmo fora do lugar.
+  assert.deepEqual(evaluate('pecas', normalize('ações')), ['absent', 'present', 'present', 'present', 'correct']);
+  assert.equal(normalize('éãêíóôõúüç'), 'eaeiooouuc');
 });

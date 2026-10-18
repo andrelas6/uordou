@@ -1,6 +1,7 @@
-import Sheet from './Sheet.jsx';
+import Sheet from './Sheet.tsx';
+import type { LetterState } from '../game.ts';
 
-function Example({ word, index, state }) {
+function Example({ word, index, state }: { word: string; index: number; state: LetterState }) {
   return (
     <div className="mini">
       {[...word].map((ch, i) => (
@@ -10,7 +11,7 @@ function Example({ word, index, state }) {
   );
 }
 
-export default function HelpSheet({ open, onClose }) {
+export default function HelpSheet({ open, onClose }: { open: boolean; onClose: () => void }) {
   return (
     <Sheet open={open} onClose={onClose} title="Como jogar">
       <p>Descubra a palavra do dia em <b>6 tentativas</b>. Cada tentativa precisa ser uma palavra válida de 5 letras.</p>

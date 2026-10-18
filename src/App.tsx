@@ -1,18 +1,19 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import { ANSWERS, VALID } from './words.js';
+import { ANSWERS, VALID } from './words.ts';
 import {
   WORD_LENGTH, MAX_GUESSES, normalize, dayNumber, answerForDay,
   evaluate, shareText, emptyStats, recordResult, currentStreak,
-} from './game.js';
-import { load, save } from './storage.js';
-import Board from './components/Board.jsx';
-import Keyboard from './components/Keyboard.jsx';
-import HelpSheet from './components/HelpSheet.jsx';
-import StatsSheet from './components/StatsSheet.jsx';
+} from './game.ts';
+import type { GameState, LetterState, Stats } from './game.ts';
+import { load, save } from './storage.ts';
+import Board from './components/Board.tsx';
+import Keyboard from './components/Keyboard.tsx';
+import HelpSheet from './components/HelpSheet.tsx';
+import StatsSheet from './components/StatsSheet.tsx';
 
 const STATE_KEY = 'uordou:state';
 const STATS_KEY = 'uordou:stats';
-const RANK = { absent: 1, present: 2, correct: 3 };
+const RANK: Record<LetterState, number> = { absent: 1, present: 2, correct: 3 };
 const REVEAL_MS = WORD_LENGTH * 250 + 300;
 const WIN_MESSAGES = ['Genial!', 'Magnífico!', 'Impressionante!', 'Muito bem!', 'Boa!', 'Ufa!'];
 
@@ -23,17 +24,25 @@ for (const w of ANSWERS) dictionary.set(normalize(w), w);
 const today = dayNumber();
 const answer = answerForDay(today, ANSWERS);
 const answerKey = normalize(answer);
-const display = (guess) => (guess === answerKey ? answer : dictionary.get(guess) ?? guess);
+const display = (guess: string): string => (guess === answerKey ? answer : dictionary.get(guess) ?? guess);
 
-function initialGame() {
-  const saved = load(STATE_KEY, null);
+type SheetName = 'help' | 'stats' | null;
+
+interface Toast {
+  id: number;
+  text: string;
+  hide?: boolean;
+}
+
+function initialGame(): GameState {
+  const saved = load<GameState | null>(STATE_KEY, null);
   return saved?.day === today ? saved : { day: today, guesses: [], status: 'playing' };
 }
 
-function useToasts() {
-  const [toasts, setToasts] = useState([]);
+function useToasts(): [Toast[], (text: string, ms?: number) => void] {
+  const [toasts, setToasts] = useState<Toast[]>([]);
   const nextId = useRef(0);
-  const toast = useCallback((text, ms = 1200) => {
+  const toast = useCallback((text: string, ms = 1200) => {
     const id = nextId.current++;
     setToasts((t) => [{ id, text }, ...t]);
     setTimeout(() => setToasts((t) => t.map((x) => (x.id === id ? { ...x, hide: true } : x))), ms);
@@ -43,14 +52,14 @@ function useToasts() {
 }
 
 export default function App() {
-  const [game, setGame] = useState(initialGame);
-  const [stats, setStats] = useState(() => load(STATS_KEY, emptyStats()));
+  const [game, setGame] = useState<GameState>(initialGame);
+  const [stats, setStats] = useState<Stats>(() => load(STATS_KEY, emptyStats()));
   const [current, setCurrent] = useState('');
   // Quantas tentativas já tiveram as cores reveladas (teclado só muda depois do giro).
   const [revealed, setRevealed] = useState(game.guesses.length);
   const [shake, setShake] = useState({ n: 0, row: -1 });
   const [winRow, setWinRow] = useState(-1);
-  const [sheet, setSheet] = useState(null);
+  const [sheet, setSheet] = useState<SheetName>(null);
   const [toasts, toast] = useToasts();
   const flipFrom = useRef(game.guesses.length).current;
 
@@ -76,7 +85,7 @@ export default function App() {
 
     const guesses = [...game.guesses, current];
     const won = current === answerKey;
-    const status = won ? 'won' : guesses.length === MAX_GUESSES ? 'lost' : 'playing';
+    const status: GameState['status'] = won ? 'won' : guesses.length === MAX_GUESSES ? 'lost' : 'playing';
     setGame({ ...game, guesses, status });
     setCurrent('');
     if (status !== 'playing') {
@@ -95,13 +104,13 @@ export default function App() {
       }
     }, REVEAL_MS);
 
-    function reject(message) {
+    function reject(message: string) {
       setShake((x) => ({ n: x.n + 1, row: game.guesses.length }));
       toast(message);
     }
   }, [current, game, toast]);
 
-  const onKey = useCallback((key) => {
+  const onKey = useCallback((key: string) => {
     if (busy || !playing) return;
     if (key === 'enter') submit();
     else if (key === 'back') setCurrent((c) => c.slice(0, -1));
@@ -110,7 +119,7 @@ export default function App() {
 
   // Teclado físico (desktop).
   useEffect(() => {
-    const handler = (e) => {
+    const handler = (e: KeyboardEvent) => {
       if (e.ctrlKey || e.metaKey || e.altKey || sheet) return;
       if (e.key === 'Enter') onKey('enter');
       else if (e.key === 'Backspace') onKey('back');
@@ -124,10 +133,11 @@ export default function App() {
   }, [onKey, sheet]);
 
   const keyStates = useMemo(() => {
-    const best = {};
+    const best: Partial<Record<string, LetterState>> = {};
     for (const g of game.guesses.slice(0, revealed)) {
       evaluate(g, answerKey).forEach((s, i) => {
-        if (!best[g[i]] || RANK[s] > RANK[best[g[i]]]) best[g[i]] = s;
+        const prev = best[g[i]];
+        if (!prev || RANK[s] > RANK[prev]) best[g[i]] = s;
       });
     }
     return best;
@@ -148,7 +158,7 @@ export default function App() {
         await navigator.share({ text: share });
         return;
       } catch (e) {
-        if (e.name === 'AbortError') return;
+        if (e instanceof DOMException && e.name === 'AbortError') return;
       }
     }
     try {

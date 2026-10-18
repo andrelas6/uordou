@@ -1,14 +1,15 @@
 // Persistência local (localStorage), tolerante a modo privado.
 
-export function load(key, fallback) {
+export function load<T>(key: string, fallback: T): T {
   try {
-    return JSON.parse(localStorage.getItem(key)) ?? fallback;
+    const raw = localStorage.getItem(key);
+    return raw === null ? fallback : (JSON.parse(raw) as T) ?? fallback;
   } catch {
     return fallback;
   }
 }
 
-export function save(key, value) {
+export function save(key: string, value: unknown): void {
   try {
     localStorage.setItem(key, JSON.stringify(value));
   } catch {

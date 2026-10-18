@@ -46,7 +46,7 @@ Gerada a partir do [fserb/pt-br](https://github.com/fserb/pt-br) (licença MIT):
 Para regenerar (depois de baixar os arquivos `lexico`, `icf` e `conjugações` — este último salvo como `conjugacoes` — numa pasta):
 
 ```sh
-python3 tools/build_words.py <pasta> src/words.js 12.9 tools/blocklist.txt
+python3 tools/build_words.py <pasta> src/words.ts 12.9 tools/blocklist.txt
 ```
 
 O último argumento numérico é o limite de raridade das respostas (maior = mais palavras, mais difíceis).
