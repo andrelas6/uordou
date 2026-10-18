@@ -1,0 +1,10 @@
+// Configuração do Cloudflare Workers: serve o build do Vite (dist/) como site estático.
+// Publicado pela integração Git do Cloudflare a cada push na main.
+{
+  "$schema": "./node_modules/wrangler/config-schema.json",
+  "name": "uordou",
+  "compatibility_date": "2026-09-01",
+  "assets": {
+    "directory": "./dist"
+  }
+}

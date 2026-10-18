@@ -26,8 +26,14 @@ https://seu-site/
 npm install
 npm run dev      # servidor local (acessível pelo celular na mesma rede)
 npm test         # testes da lógica do jogo
-npm run build    # gera dist/ estático para publicar (GitHub Pages, Netlify, etc.)
+npm run build    # gera dist/ estático
 ```
+
+## Deploy
+
+Publicado no Cloudflare Workers (https://uordou.net). A integração Git do Cloudflare
+roda `npm run build` e `npx wrangler deploy` a cada push na `main`, usando `wrangler.jsonc`
+(serve a pasta `dist/` como site estático). Pull requests ganham um link de preview.
 
 ## Estrutura
 
